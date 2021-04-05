@@ -45,7 +45,9 @@ export const styles = StyleSheet.create({
     alignSelf: "center",
   },
   cardInfo: {
-    marginTop: 10,
+    // marginTop: 10,
+    // flex: 1,
+    width: "100%",
   },
   cardInfoSub: {
     flexDirection: "row",
@@ -56,19 +58,14 @@ export const styles = StyleSheet.create({
     color: cxlxrs.black,
     fontFamily: "FiraCode-Medium",
     fontSize: 16,
-    lineHeight: 20,
-    marginBottom: -5,
     alignSelf: "center",
   },
   cardInfoPrice: {
     color: cxlxrs.textColor,
     fontFamily: "FiraCode-Bold",
     fontSize: 18,
-    // lineHeight: 20,
     alignSelf: "center",
-    marginTop: 10,
   },
-
   cardInfoSub: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -87,7 +84,7 @@ export const styles = StyleSheet.create({
     borderRadius: 30,
     height: 40,
     width: "100%",
-    marginVertical: 10,
+    marginTop: 10,
   },
   addBtnText: {
     fontFamily: FontFamily.FiraBold,

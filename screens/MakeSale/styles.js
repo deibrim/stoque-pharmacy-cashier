@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 import { cxlxrs } from "../../constants/Colors";
 import { FontFamily } from "../../constants/Fonts";
 
@@ -28,54 +28,32 @@ export const styles = StyleSheet.create({
     letterSpacing: 1,
     fontFamily: FontFamily.FiraMedium,
   },
-  datePickerStyle: {
-    width: 200,
-    marginTop: 20,
-    backgroundColor: cxlxrs.black,
-    borderWidth: 0,
-    borderRadius: 5,
-  },
-  flexGrouping: {
+  tableRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  selectContainer: {
-    backgroundColor: "transparent",
-    width: "63%",
-  },
-  label: {
-    color: cxlxrs.textColor,
-    fontFamily: FontFamily.FiraBold,
-    fontSize: 12,
-    marginLeft: 5,
-  },
-  dateSelectorContainer: {
-    backgroundColor: "transparent",
-  },
-  dateSelectorLabel: {
-    color: cxlxrs.textColor,
-    fontFamily: FontFamily.FiraBold,
-    fontSize: 12,
-    marginLeft: 5,
-  },
-  passcodeView: {
-    backgroundColor: "#ffffff",
-    borderRadius: 5,
-    elevation: 0,
-    height: 40,
-    width: "60%",
-    justifyContent: "flex-start",
-  },
-  passcodeViewText: {
+  tableText: {
     fontFamily: FontFamily.FiraBold,
     textTransform: "capitalize",
     fontWeight: "400",
     fontSize: 12,
     color: cxlxrs.black,
+    width: (Dimensions.get("window").width - 20) / 4,
+    textAlign: "right",
+  },
+  tableTextLong: {
+    textAlign: "left",
+    width: (Dimensions.get("window").width - 20) / 2,
+  },
+  tableBodyText: {
+    fontFamily: FontFamily.FiraRegular,
+  },
+  tableFooter: {
+    marginTop: 30,
   },
   addBtn: {
-    backgroundColor: cxlxrs.black,
+    backgroundColor: cxlxrs.white,
     borderRadius: 30,
     height: 40,
     width: "90%",
@@ -85,6 +63,28 @@ export const styles = StyleSheet.create({
     textTransform: "capitalize",
     fontWeight: "400",
     fontSize: 12,
-    color: cxlxrs.white,
+    color: cxlxrs.black,
+  },
+  iconContainer: {
+    backgroundColor: "#ffffff",
+    borderRadius: 30,
+    height: 40,
+    width: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+  },
+  bottomButtonsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    position: "absolute",
+    bottom: 20,
+  },
+  bottomButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });

@@ -1,46 +1,55 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Dimensions, Modal, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Dimensions,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
 import { throttle } from "lodash";
 import BarCodeScreen from "../CodeScanner/CodeScanner";
 import requestCameraPermissionsAsync from "../../utils/requestCameraPermissionsAsync";
 import { firestore } from "../../firebase/config";
-import HelperDialog from "../HelperDialog/HelperDialog";
 import { styles } from "./styles";
 import { cxlxrs } from "../../constants/Colors";
-import { MaterialIcons } from "@expo/vector-icons";
 import AppButton from "../AppButton/AppButton";
-const Scanner = ({
-  setBarcode,
-  scannerVisible,
-  setScannerVisible,
-  quickScan,
-}) => {
+import { Ionicons } from "@expo/vector-icons";
+import CustomInput from "../CustomInput/CustomInput";
+import CustomPopUp from "../CustomPopUp/CustomPopUp";
+const Scanner = ({ scannerVisible, setScannerVisible }) => {
   const user = useSelector(({ user }) => user.currentUser);
-  const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
+  const [quantity, setQuantity] = useState("");
+  const [scanning, setScanning] = useState(true);
   const [scanned, setScanned] = useState(false);
-  const [dialogVisible, setDialogVisible] = useState(false);
+  const [barcode, setBarcode] = useState("");
+  const [noData, setNoData] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [productData, setProductData] = useState({});
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     requestPermission();
   }, []);
   const getProductData = async (barcode) => {
-    setIsLoading(true);
+    setErrorMessage("");
     const productsRef = firestore
       .collection("products")
       .doc(user.id)
       .collection("products")
       .where("barcode", "==", barcode);
     const snapshot = await productsRef.get();
+    if (snapshot.empty) {
+      setNoData(true);
+      setIsLoading(false);
+    }
     if (snapshot.docs.length === 1) {
       snapshot.docs.forEach((item) => {
         setProductData(item.data());
       });
-      setScanned(false);
+      setScanned(true);
       setIsLoading(false);
     }
   };
@@ -48,16 +57,15 @@ const Scanner = ({
     setHasPermission(await requestCameraPermissionsAsync());
   };
   const _handleBarCodeScanned = throttle((info) => {
+    setErrorMessage("");
+    setNoData(false);
     setScanned(true);
-    if (quickScan) {
-      setDialogVisible(true);
-      setScannerVisible(false);
-      getProductData(info.data);
-      return;
-    }
+    setScanning(false);
+    setIsLoading(true);
+    // setDialogVisible(true);
+    // setScannerVisible(false);
+    getProductData(info.data);
     setBarcode(info.data);
-    setScannerVisible(false);
-    setScanned(false);
   }, 1000);
 
   if (hasPermission === null) {
@@ -68,83 +76,169 @@ const Scanner = ({
   }
 
   return (
-    <>
-      <Modal
-        animationType="fade"
-        transparent={false}
-        statusBarTranslucent={true}
-        visible={scannerVisible}
-        onRequestClose={() => {}}
-        style={{
-          width: "100%",
-          height: Dimensions.get("screen").height,
-        }}
+    <Modal
+      animationType="fade"
+      transparent={false}
+      statusBarTranslucent={true}
+      visible={scannerVisible}
+      onRequestClose={() => {}}
+      style={{
+        width: "100%",
+        height: Dimensions.get("screen").height,
+      }}
+    >
+      <TouchableOpacity
+        style={[
+          {
+            position: "absolute",
+            top: 20,
+            right: 10,
+            backgroundColor: cxlxrs.white,
+            zIndex: 10,
+            height: 40,
+            width: 40,
+            borderRadius: 30,
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        ]}
+        onPress={() => setScannerVisible(false)}
       >
-        <BarCodeScreen
-          scanned={scanned}
-          setScanned={setScanned}
-          handleBarCodeScanned={_handleBarCodeScanned}
-          setScannerVisible={setScannerVisible}
-        />
-      </Modal>
-      <HelperDialog
-        visible={dialogVisible}
-        setDialogVisible={setDialogVisible}
-        title={"Product Preview"}
-      >
-        {isLoading ? (
-          <ActivityIndicator
-            size="large"
-            color={cxlxrs.black}
-            style={{ marginBottom: 10 }}
-          />
-        ) : (
-          <>
-            {/* <View
-              style={[
-                styles.productIconContainer,
-                {
-                  borderColor:
-                    productData.status === "In Stock"
-                      ? cxlxrs.success
-                      : cxlxrs.textColor,
-                  // backgroundColor:
-                  //   productData.status === "In Stock" ? cxlxrs.success : cxlxrs.textColor,
-                },
-              ]}
-            >
-              <MaterialIcons name="inventory" size={23} color={cxlxrs.white} />
-            </View> */}
-            <View style={styles.cardInfo}>
-              <Text style={styles.cardInfoName}>
-                {productData.product_name}
-              </Text>
-              <Text style={styles.cardInfoPrice}>₦{productData.price}</Text>
-              <View style={styles.cardInfoSub}>
-                <Text style={styles.cardInfoSubText}>
-                  Sold: {productData.product_sold_since_last_restock}
-                </Text>
-                <Text style={styles.cardInfoSubText}>
-                  {productData.status === "In Stock"
-                    ? `In Stock: ${productData.quantity}`
-                    : `Sold Out`}
-                </Text>
-              </View>
-            </View>
-            <AppButton
-              onPress={() => {
-                navigation.navigate("ProductView", { data: productData });
-                setDialogVisible(false);
-              }}
-              title="View Product"
-              customStyle={styles.addBtn}
-              textStyle={styles.addBtnText}
-            />
-          </>
-        )}
-      </HelperDialog>
-    </>
+        <Ionicons name="close" size={20} color={cxlxrs.danger} />
+      </TouchableOpacity>
+      <BarCodeScreen
+        scanned={scanned}
+        setScanned={setScanned}
+        setScanning={setScanning}
+        handleBarCodeScanned={_handleBarCodeScanned}
+      />
+      {DetailsViewer(
+        scanning,
+        barcode,
+        noData,
+        isLoading,
+        productData,
+        quantity,
+        setQuantity,
+        errorMessage,
+        setErrorMessage
+      )}
+    </Modal>
   );
 };
 
 export default Scanner;
+
+function DetailsViewer(
+  scanning,
+  barcode,
+  noData,
+  isLoading,
+  productData,
+  quantity,
+  setQuantity,
+  errorMessage,
+  setErrorMessage
+) {
+  const checkQuantity = () => {
+    if (quantity > productData.quantity) {
+      setErrorMessage(`There is only ${productData.quantity} left`);
+      return false;
+    } else {
+      // Add to basket
+    }
+  };
+  return (
+    <View
+      style={{
+        position: "absolute",
+        bottom: 0,
+        width: "100%",
+        // minHeight: 200,
+        padding: scanning || noData || isLoading ? 30 : 20,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        backgroundColor: cxlxrs.white,
+        justifyContent:
+          scanning || noData || isLoading ? "center" : "flex-start",
+        alignItems: "center",
+      }}
+    >
+      <View style={{ width: "100%", alignItems: "center" }}>
+        {errorMessage !== "" ? (
+          <CustomPopUp
+            message={`${errorMessage}`}
+            type={"error"}
+            customStyles={{
+              backgroundColor: cxlxrs.danger,
+              borderRadius: 30,
+              justifyContent: "center",
+              height: 30,
+              paddingVertical: 0,
+              marginTop: -140,
+            }}
+            customTextStyles={{ color: "#ffffff", textAlign: "center" }}
+          />
+        ) : null}
+      </View>
+      {scanning && <Text style={{}}>{scanning ? "Scanning..." : barcode}</Text>}
+      {!scanning ? (
+        <>
+          {isLoading ? (
+            <ActivityIndicator
+              size="large"
+              color={cxlxrs.black}
+              style={{ marginBottom: 10 }}
+            />
+          ) : noData ? (
+            <Text style={{}}>This product is not yet registered!</Text>
+          ) : (
+            <>
+              <View style={styles.cardInfo}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.cardInfoName}>
+                    {productData.product_name}
+                  </Text>
+                  <Text style={styles.cardInfoPrice}>₦{productData.price}</Text>
+                </View>
+                <View style={styles.cardInfoSub}>
+                  <Text style={styles.cardInfoSubText}>
+                    Sold: {productData.product_sold_since_last_restock}
+                  </Text>
+                  <Text style={styles.cardInfoSubText}>
+                    {productData.status === "In Stock"
+                      ? `In Stock: ${productData.quantity}`
+                      : `Sold Out`}
+                  </Text>
+                </View>
+              </View>
+              <CustomInput
+                onChange={(e) => {
+                  setErrorMessage("");
+                  setQuantity(e * 1);
+                }}
+                placeholder="Quantity"
+                value={quantity * 1}
+                keyType="numeric"
+              />
+              <AppButton
+                onPress={() => {
+                  checkQuantity();
+                }}
+                title="Sell"
+                customStyle={styles.addBtn}
+                textStyle={styles.addBtnText}
+              />
+            </>
+          )}
+        </>
+      ) : null}
+    </View>
+  );
+}

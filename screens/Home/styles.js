@@ -66,6 +66,15 @@ export const styles = StyleSheet.create({
     color: cxlxrs.black,
     fontFamily: FontFamily.FiraSemiBold,
   },
+  sectionLink: {
+    alignItems: "flex-end",
+    justifyContent: "flex-start",
+    fontSize: 12,
+    textAlign: "right",
+    marginBottom: 5,
+    color: cxlxrs.textColor,
+    fontFamily: FontFamily.FiraSemiBold,
+  },
   transaction: {
     width: Dimensions.get("screen").width - 20,
     flexDirection: "row",
@@ -79,7 +88,7 @@ export const styles = StyleSheet.create({
   },
   transactionIcon: { width: 20 },
   transactionTexts: {
-    width: Dimensions.get("screen").width - 60,
+    width: Dimensions.get("screen").width - 40,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -118,5 +127,18 @@ export const styles = StyleSheet.create({
     color: cxlxrs.textColor,
     fontFamily: FontFamily.FiraBold,
     fontSize: 10,
+  },
+  makeSaleBtn: {
+    backgroundColor: "#ffffff",
+    borderRadius: 30,
+    height: 40,
+    width: "50%",
+  },
+  makeSaleBtnText: {
+    fontFamily: FontFamily.FiraBold,
+    textTransform: "capitalize",
+    fontWeight: "400",
+    fontSize: 12,
+    color: cxlxrs.black,
   },
 });

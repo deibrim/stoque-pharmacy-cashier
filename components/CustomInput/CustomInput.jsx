@@ -9,6 +9,9 @@ const CustomInput = ({
   iStyle,
   placeholder,
   value,
+  autoCapitalize,
+  keyType,
+  editable,
   onChange,
   otherIcon,
 }) => {
@@ -20,9 +23,11 @@ const CustomInput = ({
         style={{ ...styles.input, ...iStyle }}
         underlineColorAndroid="transparent"
         placeholder={placeholder}
-        placeholderTextColor="#000000"
-        autoCapitalize="none"
+        placeholderTextColor="#97989A"
         onChangeText={onChange}
+        autoCapitalize={autoCapitalize || "none"}
+        keyboardType={keyType || "default"}
+        editable={editable}
         value={value}
       />
       {otherIcon}

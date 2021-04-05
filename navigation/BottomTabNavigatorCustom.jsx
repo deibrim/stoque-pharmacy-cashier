@@ -5,12 +5,14 @@ import {
   BottomTabBar,
 } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/core";
 import Svg, { Path } from "react-native-svg";
 import { isIphoneX } from "react-native-iphone-x-helper";
 
 import Home from "../screens/Home/Home";
 import Scan from "../screens/Scan/Scan";
 import Transactions from "../screens/Transactions/Transactions";
+import MakeSale from "../screens/MakeSale/MakeSale";
 
 import { Icons } from "../constants/icons";
 import { cxlxrs } from "../constants/Colors";
@@ -90,6 +92,29 @@ const CustomTabBar = (props) => {
 };
 
 const BottomTabNavigator = () => {
+  function getTabBarVisible(route) {
+    const routeName = getFocusedRouteNameFromRoute(route);
+    switch (routeName) {
+      case "EditProfile":
+        return false;
+        break;
+      case "Profile":
+        return false;
+        break;
+      case "MakeSale":
+        return false;
+        break;
+      case "ProductView":
+        return false;
+        break;
+      case "About":
+        return false;
+        break;
+      default:
+        return true;
+        break;
+    }
+  }
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -108,7 +133,8 @@ const BottomTabNavigator = () => {
       <Tab.Screen
         name="Home"
         component={HomeScreenNavigator}
-        options={{
+        options={({ route }) => ({
+          tabBarVisible: getTabBarVisible(route),
           tabBarIcon: ({ focused }) => (
             //   IMAGE OR ICON
             <Image
@@ -121,13 +147,14 @@ const BottomTabNavigator = () => {
               }}
             />
           ),
-          tabBarButton: (props) => <TabBarCustomButton {...props} />,
-        }}
+          tabBarButton: (props) =>
+            getTabBarVisible(route) && <TabBarCustomButton {...props} />,
+        })}
       />
       <Tab.Screen
         name="Scan"
         component={ScanScreenNavigator}
-        options={{
+        options={({ route }) => ({
           tabBarIcon: ({ focused }) => (
             <Image
               source={Icons.scan}
@@ -140,12 +167,12 @@ const BottomTabNavigator = () => {
             />
           ),
           tabBarButton: (props) => <TabBarCustomButton {...props} />,
-        }}
+        })}
       />
       <Tab.Screen
         name="Transaction"
         component={TransactionScreenNavigator}
-        options={{
+        options={({ route }) => ({
           tabBarIcon: ({ focused }) => (
             <AntDesign
               name="retweet"
@@ -154,7 +181,7 @@ const BottomTabNavigator = () => {
             />
           ),
           tabBarButton: (props) => <TabBarCustomButton {...props} />,
-        }}
+        })}
       />
     </Tab.Navigator>
   );
@@ -173,8 +200,8 @@ function HomeScreenNavigator() {
         }}
       />
       <ScreenStack.Screen
-        name="Notification"
-        component={Notification}
+        name="MakeSale"
+        component={MakeSale}
         options={{
           headerShown: false,
         }}

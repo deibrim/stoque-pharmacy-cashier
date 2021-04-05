@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { FontFamily } from "../../constants/Fonts";
 
 export const styles = StyleSheet.create({
   inputGroup: {
@@ -15,12 +16,14 @@ export const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    paddingTop: 10,
+    paddingVertical: 5,
     paddingRight: 10,
-    paddingBottom: 10,
     paddingLeft: 0,
     backgroundColor: "#fff",
     color: "#424242",
     borderRadius: 25,
+    paddingLeft: 10,
+    fontSize: 12,
+    fontFamily: FontFamily.FiraMedium,
   },
 });
