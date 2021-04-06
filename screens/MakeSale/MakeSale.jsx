@@ -11,17 +11,32 @@ import { styles } from "./styles";
 import { useSelector } from "react-redux";
 import { Icons } from "../../constants/icons";
 import Scanner from "../../components/Scanner/Scanner";
+import SearchProduct from "../../components/SearchProduct/SearchProduct";
 
 const MakeSale = () => {
   const user = useSelector(({ user }) => user.currentUser);
   const navigation = useNavigation();
-  const [cashierName, setCashierName] = useState("");
   const [scannerVisible, setScannerVisible] = useState(false);
+  const [searchVisible, setSearchVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {}, []);
-
+  const [basket, setBasket] = useState([]);
+  const [total, setTotal] = useState({ quantity: 0, price: 0 });
+  const onCalculateTotal = () => {
+    let qty = 0;
+    let totalPrice = 0;
+    basket.forEach((item) => {
+      qty += item.quantity;
+      totalPrice += item.total;
+    });
+    setTotal({ quantity: qty, price: totalPrice });
+  };
+  useEffect(() => {
+    onCalculateTotal();
+  }, [basket]);
+  const onCheckout = () => {
+    console.log(basket);
+  };
   return (
     <>
       <View style={styles.header}>
@@ -39,6 +54,14 @@ const MakeSale = () => {
       <Scanner
         scannerVisible={scannerVisible}
         setScannerVisible={setScannerVisible}
+        basket={basket}
+        setBasket={setBasket}
+      />
+      <SearchProduct
+        searchVisible={searchVisible}
+        setSearchVisible={setSearchVisible}
+        basket={basket}
+        setBasket={setBasket}
       />
       <ScrollView
         contentContainerStyle={styles.contentContainer}
@@ -79,24 +102,27 @@ const MakeSale = () => {
               </Text>
             </View>
           </View>
-          <View style={{ height: 20 }}></View>
           <View style={[styles.tableBody]}>
-            <View style={[styles.tableRow]}>
-              <Text
-                style={[
-                  styles.tableText,
-                  styles.tableTextLong,
-                  styles.tableBodyText,
-                  styles.tableBodyTextName,
-                ]}
-              >
-                Maltina
-              </Text>
-              <Text style={[styles.tableText, styles.tableBodyText]}>
-                150 x 2
-              </Text>
-              <Text style={[styles.tableText, styles.tableBodyText]}>₦300</Text>
-            </View>
+            {basket.map((item, index) => (
+              <View key={index} style={[styles.tableRow]}>
+                <Text
+                  style={[
+                    styles.tableText,
+                    styles.tableTextLong,
+                    styles.tableBodyText,
+                    styles.tableBodyTextName,
+                  ]}
+                >
+                  {item.product_name || "Maltina"}
+                </Text>
+                <Text style={[styles.tableText, styles.tableBodyText]}>
+                  ₦{item.price} x {item.quantity}
+                </Text>
+                <Text style={[styles.tableText, styles.tableBodyText]}>
+                  ₦{item.total}
+                </Text>
+              </View>
+            ))}
           </View>
           <View style={{ height: 10 }}></View>
 
@@ -113,11 +139,11 @@ const MakeSale = () => {
                 Total
               </Text>
               <Text style={[styles.tableText, styles.tableFooterText]}>
-                {2}
+                {total.quantity}
               </Text>
               <Text
                 style={[styles.tableText, styles.tableFooterText]}
-              >{`₦${300}`}</Text>
+              >{`₦${total.price}`}</Text>
             </View>
           </View>
         </View>
@@ -147,7 +173,7 @@ const MakeSale = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.iconContainer, { backgroundColor: cxlxrs.black }]}
-              onPress={() => {}}
+              onPress={() => setSearchVisible(true)}
             >
               <Ionicons name="search" size={20} color={cxlxrs.white} />
             </TouchableOpacity>

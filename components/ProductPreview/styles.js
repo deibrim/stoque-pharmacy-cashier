@@ -7,6 +7,8 @@ export const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     elevation: 3,
     borderRadius: 60,
+    borderWidth: 2,
+    borderColor: "#ffffff",
     padding: 5,
     position: "relative",
     flexDirection: "row",

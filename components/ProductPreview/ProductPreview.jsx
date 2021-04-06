@@ -6,25 +6,39 @@ import { cxlxrs } from "../../constants/Colors";
 import { styles } from "./styles";
 
 export default function ProductPreview({
+  selected,
+  setSelected,
   data,
-  data: { product_name, product_sold_since_last_restock, status, quantity },
+  data: {
+    product_name,
+    product_sold_since_last_restock,
+    status,
+    quantity,
+    notification,
+  },
   customStyles,
 }) {
   const navigation = useNavigation();
 
   const onPress = () => {
-    navigation.navigate("ProductView", { data });
+    setSelected(data);
   };
   return (
     <TouchableOpacity onPress={onPress}>
       <>
-        <View style={[styles.productCard, { ...customStyles }]}>
+        <View
+          style={[
+            styles.productCard,
+            { ...customStyles },
+            selected.id === data.id && { borderColor: cxlxrs.success },
+          ]}
+        >
           <View
             style={[
               styles.productIconContainer,
               {
                 borderColor:
-                  status === "In Stock" ? cxlxrs.success : cxlxrs.textColor,
+                  notification < quantity ? cxlxrs.success : cxlxrs.warn,
                 // backgroundColor:
                 //   status === "In Stock" ? cxlxrs.success : cxlxrs.textColor,
               },
@@ -49,12 +63,12 @@ export default function ProductPreview({
               </Text>
             </View>
           </View>
-          <Ionicons
+          {/* <Ionicons
             name="chevron-forward-outline"
             size={24}
             color={cxlxrs.black}
             style={{ marginLeft: "auto", marginRight: 5 }}
-          />
+          /> */}
         </View>
       </>
     </TouchableOpacity>

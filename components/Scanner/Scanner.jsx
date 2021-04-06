@@ -18,7 +18,7 @@ import AppButton from "../AppButton/AppButton";
 import { Ionicons } from "@expo/vector-icons";
 import CustomInput from "../CustomInput/CustomInput";
 import CustomPopUp from "../CustomPopUp/CustomPopUp";
-const Scanner = ({ scannerVisible, setScannerVisible }) => {
+const Scanner = ({ scannerVisible, setScannerVisible, basket, setBasket }) => {
   const user = useSelector(({ user }) => user.currentUser);
   const [hasPermission, setHasPermission] = useState(null);
   const [quantity, setQuantity] = useState("");
@@ -62,8 +62,6 @@ const Scanner = ({ scannerVisible, setScannerVisible }) => {
     setScanned(true);
     setScanning(false);
     setIsLoading(true);
-    // setDialogVisible(true);
-    // setScannerVisible(false);
     getProductData(info.data);
     setBarcode(info.data);
   }, 1000);
@@ -121,7 +119,11 @@ const Scanner = ({ scannerVisible, setScannerVisible }) => {
         quantity,
         setQuantity,
         errorMessage,
-        setErrorMessage
+        setErrorMessage,
+        basket,
+        setBasket,
+        setScanned,
+        setIsLoading
       )}
     </Modal>
   );
@@ -138,14 +140,29 @@ function DetailsViewer(
   quantity,
   setQuantity,
   errorMessage,
-  setErrorMessage
+  setErrorMessage,
+  basket,
+  setBasket,
+  setScanned,
+  setIsLoading
 ) {
   const checkQuantity = () => {
     if (quantity > productData.quantity) {
       setErrorMessage(`There is only ${productData.quantity} left`);
       return false;
     } else {
-      // Add to basket
+      // Add to
+      const data = {
+        barcode: productData.barcode,
+        product_name: productData.product_name,
+        quantity,
+        id: productData.id,
+        price: productData.price,
+        total: productData.price * quantity,
+      };
+      setBasket([...basket, data]);
+      setScanned(false);
+      setIsLoading(false);
     }
   };
   return (

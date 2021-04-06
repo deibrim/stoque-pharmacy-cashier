@@ -6,13 +6,10 @@ import {
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Onboarding from "../screens/Onboarding/Onboarding";
 import BottomTabNavigator from "./BottomTabNavigatorCustom";
-// import BottomTabNavigator from "./BottomTabNavigator";
-import Register from "../screens/Register/Register";
 import Login from "../screens/Login/Login";
 import ForgotPassword from "../screens/ForgotPassword/ForgotPassword";
-import { auth, firestore } from "../firebase/config";
+import { auth } from "../firebase/config";
 import { createShopAdminProfile } from "../firebase/auth";
 import { setCurrentUser } from "../redux/user/actions";
 
@@ -26,17 +23,6 @@ function Navigation({ colorScheme }) {
         userRef.onSnapshot(async (snapShot) => {
           const data = { id: snapShot.id, ...snapShot.data() };
           dispatch(setCurrentUser(data));
-
-          const notificationRef = await firestore
-            .collection("notifications")
-            .doc(snapShot.id)
-            .collection("feedItems")
-            .where("viewed", "==", false);
-          notificationRef.onSnapshot(async (snapShot) => {
-            if (snapShot.size > 0) {
-              // dispatch(toggleHasNoty(true));
-            }
-          });
         });
       }
     });
@@ -69,16 +55,6 @@ const AuthStack = createStackNavigator();
 function AuthNavigator() {
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
-      {/* <AuthStack.Screen
-        name="Root"
-        component={Onboarding}
-        options={{ headerShown: false }}
-      />
-      <AuthStack.Screen
-        name="Register"
-        component={Register}
-        options={{ title: "Register" }}
-      /> */}
       <AuthStack.Screen
         name="Root"
         component={Login}
