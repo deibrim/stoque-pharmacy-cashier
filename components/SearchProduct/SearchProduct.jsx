@@ -42,7 +42,9 @@ const SearchProduct = ({
       .collection("products")
       .doc(user.id)
       .collection("products")
-      .where("query", ">=", query.toLowerCase());
+      .where("query", ">=", `${query.toLowerCase()}`)
+      .orderBy("query", "asc")
+      .limit(3);
     const snapshot = await productsRef.get();
     if (snapshot.empty) {
       setNoData(true);
@@ -58,23 +60,49 @@ const SearchProduct = ({
     setSearched(true);
     setIsLoading(false);
   };
+  const addToBasket = () => {
+    // Add to basket
+    const data = {
+      barcode: selected.barcode,
+      product_name: selected.product_name,
+      quantity,
+      id: selected.id,
+      price: selected.price,
+      total: selected.price * quantity,
+    };
+    const exist = basket.find((item) => item.barcode === data.barcode);
+    if (exist === undefined && basket.length === 0) {
+      setBasket([data]);
+      setIsLoading(false);
+      return;
+    } else if (exist === undefined) {
+      setBasket([...basket, data]);
+    } else if (basket.length) {
+      const filtered = basket.filter(
+        (item, index) => item.barcode !== data.barcode
+      );
+      data.price = data.price + exist.price;
+      data.quantity = data.quantity + exist.quantity;
+      data.total = data.total + exist.total;
+      if (filtered.length && filtered !== undefined) {
+        setBasket([...filtered, data]);
+        setIsLoading(false);
+        return;
+      }
+      setBasket([data]);
+      setIsLoading(false);
+    }
+    setIsLoading(false);
+  };
   const checkQuantity = () => {
-    if (quantity > productData.quantity) {
-      setErrorMessage(`There is only ${productData.quantity} left`);
+    if (quantity === "" || quantity === 0) {
+      return;
+    }
+    if (quantity > selected.quantity) {
+      setErrorMessage(`There is only ${selected.quantity} left`);
       return false;
     } else {
-      // Add to
-      const data = {
-        barcode: productData.barcode,
-        product_name: productData.product_name,
-        quantity,
-        id: productData.id,
-        price: productData.price,
-        total: productData.price * quantity,
-      };
-      setBasket([...basket, data]);
-      setScanned(false);
-      setIsLoading(false);
+      addToBasket();
     }
   };
   return (
@@ -134,6 +162,7 @@ const SearchProduct = ({
             label="Search"
             value={query}
             onChangeText={(e) => {
+              setNoData(false);
               setErrorMessage("");
               setQuery(e);
             }}
@@ -165,12 +194,13 @@ const SearchProduct = ({
             style={{ marginBottom: 10 }}
           />
         ) : noData ? (
-          <Text style={{}}>Product does'nt exist in inventory</Text>
+          <SafeAreaView style={{ flex: 1 }}>
+            <View style={styles.listContainer}>
+              <Text style={{}}>Product does'nt exist in inventory</Text>
+            </View>
+          </SafeAreaView>
         ) : (
           <>
-            {/* {productData.map((item, index) => (
-              <ProductPreview key={index} data={item} />
-            ))} */}
             <SafeAreaView style={{ flex: 1 }}>
               <View style={styles.listContainer}>
                 <FlatList

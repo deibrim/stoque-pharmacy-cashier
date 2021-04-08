@@ -146,23 +146,53 @@ function DetailsViewer(
   setScanned,
   setIsLoading
 ) {
+  const addToBasket = () => {
+    // Add to basket
+    const data = {
+      barcode: productData.barcode,
+      product_name: productData.product_name,
+      quantity,
+      id: productData.id,
+      price: productData.price,
+      total: productData.price * quantity,
+    };
+    const exist = basket.find((item) => item.barcode === data.barcode);
+    if (exist === undefined && basket.length === 0) {
+      setBasket([data]);
+      setScanned(false);
+      setIsLoading(false);
+      return;
+    } else if (exist === undefined) {
+      setBasket([...basket, data]);
+    } else if (basket.length) {
+      const filtered = basket.filter(
+        (item, index) => item.barcode !== data.barcode
+      );
+      data.price = data.price + exist.price;
+      data.quantity = data.quantity + exist.quantity;
+      data.total = data.total + exist.total;
+      if (filtered.length && filtered !== undefined) {
+        setBasket([...filtered, data]);
+        setScanned(false);
+        setIsLoading(false);
+        return;
+      }
+      setBasket([data]);
+      setScanned(false);
+      setIsLoading(false);
+    }
+    setScanned(false);
+    setIsLoading(false);
+  };
   const checkQuantity = () => {
+    if (quantity === "" || quantity === 0) {
+      return;
+    }
     if (quantity > productData.quantity) {
       setErrorMessage(`There is only ${productData.quantity} left`);
       return false;
     } else {
-      // Add to
-      const data = {
-        barcode: productData.barcode,
-        product_name: productData.product_name,
-        quantity,
-        id: productData.id,
-        price: productData.price,
-        total: productData.price * quantity,
-      };
-      setBasket([...basket, data]);
-      setScanned(false);
-      setIsLoading(false);
+      addToBasket();
     }
   };
   return (

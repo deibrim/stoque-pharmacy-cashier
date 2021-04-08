@@ -53,6 +53,9 @@ export const styles = StyleSheet.create({
   tableFooter: {
     marginTop: 30,
   },
+  tableSubFooter: {
+    marginTop: 0,
+  },
   addBtn: {
     backgroundColor: cxlxrs.white,
     borderRadius: 30,
@@ -87,5 +90,16 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  modalTextButton: {
+    marginVertical: 3,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  modalText: {
+    color: "#111111",
+    fontSize: 14,
+    fontFamily: "FiraCode-Regular",
   },
 });

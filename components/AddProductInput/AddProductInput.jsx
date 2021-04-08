@@ -12,6 +12,7 @@ const AddProductInput = ({
   autoCapitalize,
   keyType,
   editable,
+  autoFocus,
 }) => {
   return (
     <View style={[styles.inputContainer, containerStyle]}>
@@ -25,6 +26,7 @@ const AddProductInput = ({
           autoCapitalize={autoCapitalize || "none"}
           keyboardType={keyType || "default"}
           editable={editable}
+          autoFocus={autoFocus}
           value={value}
         />
       </View>

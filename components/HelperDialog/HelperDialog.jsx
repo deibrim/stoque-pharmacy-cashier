@@ -17,7 +17,6 @@ const HelperDialog = ({
       transparent={true}
       visible={visible}
       style={styles.modal}
-      position="bottom"
     >
       <TouchableOpacity
         activeOpacity={1}
@@ -42,13 +41,19 @@ const HelperDialog = ({
             backgroundColor: cxlxrs.white,
             width: "90%",
             borderRadius: 10,
-            // elevation: 4,
           }}
         >
           <View style={{ minHeight: 100 }}>
-            {!noTitle && (
+            {noTitle ? null : (
               <View style={styles.customDialogTitle}>
-                <Text style={[styles.title]}>{title}</Text>
+                <Text
+                  style={[
+                    styles.title,
+                    { textAlign: "center", fontSize: 16, fontWeight: "bold" },
+                  ]}
+                >
+                  {title}
+                </Text>
               </View>
             )}
             {children}

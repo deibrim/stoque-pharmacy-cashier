@@ -42,3 +42,12 @@ export const CreateEmployee = async (data) => {
     console.log("error creating shop", error.message);
   }
 };
+export const CreateSale = async (data, ownerId) => {
+  const { id } = data;
+  const salesRef = firestore.doc(`sales/${ownerId}/sales/${id}`);
+  try {
+    await salesRef.set(data);
+  } catch (error) {
+    console.log("error creating sales", error.message);
+  }
+};

@@ -58,9 +58,9 @@ const Home = () => {
         !snapShot.empty && setLatestSale(snapShot.docs[0].data());
       });
   };
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [fetchData]);
 
   return (
     <>
