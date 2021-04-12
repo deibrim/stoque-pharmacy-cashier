@@ -12,7 +12,6 @@ export default function ProductPreview({
   data: {
     product_name,
     product_sold_since_last_restock,
-    status,
     quantity,
     notification,
   },
@@ -21,7 +20,7 @@ export default function ProductPreview({
   const navigation = useNavigation();
 
   const onPress = () => {
-    setSelected(data);
+    quantity > 0 && setSelected(data);
   };
   return (
     <TouchableOpacity onPress={onPress}>
@@ -38,7 +37,11 @@ export default function ProductPreview({
               styles.productIconContainer,
               {
                 borderColor:
-                  notification < quantity ? cxlxrs.success : cxlxrs.warn,
+                  notification < quantity
+                    ? cxlxrs.success
+                    : quantity === 0
+                    ? cxlxrs.danger
+                    : cxlxrs.warn,
                 // backgroundColor:
                 //   status === "In Stock" ? cxlxrs.success : cxlxrs.textColor,
               },
@@ -59,7 +62,11 @@ export default function ProductPreview({
                 Sold: {product_sold_since_last_restock}
               </Text>
               <Text style={styles.cardInfoSubText}>
-                {status === "In Stock" ? `In Stock: ${quantity}` : `Sold Out`}
+                {notification < quantity
+                  ? `In Stock: ${quantity}`
+                  : quantity === 0
+                  ? `Sold Out`
+                  : `Running Low`}
               </Text>
             </View>
           </View>

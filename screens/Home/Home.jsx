@@ -1,66 +1,63 @@
-import {
-  AntDesign,
-  FontAwesome,
-  FontAwesome5,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { AntDesign, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  FlatList,
+  Image,
   ScrollView,
+  SafeAreaView,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import AppButton from "../../components/AppButton/AppButton";
 import OverviewBox from "../../components/OverviewBox/OverviewBox";
+import TransactionPreview from "../../components/TransactionPreview/TransactionPreview";
 import { cxlxrs } from "../../constants/Colors";
+import { Images } from "../../constants/images";
 import { firestore } from "../../firebase/config";
 import { styles } from "./styles";
 
 const Home = () => {
   const user = useSelector(({ user }) => user.currentUser);
-  const [productCount, setProductCount] = useState("0");
-  const [cashierCount, setCashierCount] = useState("0");
   const [latestSale, setLatestSale] = useState({});
-  const [revenue, setRevenue] = useState("0");
+  const [latestSales, setLatestSales] = useState([]);
+  const [isLatestSaleLoading, setIsLatestSaleLoading] = useState(true);
+  const [invoices, setInvoices] = useState("0");
+  const [sold, setSold] = useState("0");
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const productsRef = firestore
-    .collection("products")
-    .doc(user.id)
-    .collection("products");
-  const cashiersRef = firestore
-    .collection("employees")
-    .doc(user.id)
-    .collection("cashiers");
-  const statsRef = firestore.collection("stats").doc(user.id);
+  const timeString = new Date(Date.now()).toISOString().substring(0, 10);
   const latestSalesRef = firestore
     .collection("sales")
     .doc(user.id)
-    .collection("sales");
-  const fetchData = async () => {
-    productsRef.onSnapshot((snapShot) => setProductCount(snapShot.size));
-    cashiersRef.onSnapshot((snapShot) => setCashierCount(snapShot.size));
-    statsRef.onSnapshot((snapShot) => {
-      if (!snapShot.exists) {
-        return;
+    .collection("sales")
+    .where("cashier_id", "==", `${user.id}`)
+    .where("day_created", "==", `${timeString}`);
+  const fetchData = useCallback(async () => {
+    latestSalesRef.onSnapshot((snapShot) => {
+      const salesArr = [];
+      if (!snapShot.empty) {
+        const docs = snapShot.docs;
+        docs.forEach((item, index) => {
+          salesArr.push(item.data());
+          const arrLength = docs.length - 1;
+          if (index === arrLength) {
+            console.log(docs.length);
+            setLatestSales(salesArr);
+            setIsLatestSaleLoading(false);
+          }
+        });
+        setLatestSale(snapShot.docs[0].data());
+        setIsLatestSaleLoading(false);
       }
-      setRevenue(snapShot.data().revenue);
     });
-    latestSalesRef
-      .orderBy("created_at")
-      .limit(1)
-      .onSnapshot((snapShot) => {
-        !snapShot.empty && setLatestSale(snapShot.docs[0].data());
-      });
-  };
-  // useEffect(() => {
-  //   fetchData();
-  // }, [fetchData]);
+  }, [latestSale]);
+  useEffect(() => {
+    fetchData();
+  }, [""]);
 
   return (
     <>
@@ -91,7 +88,6 @@ const Home = () => {
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
             <View style={styles.imageContainer}>
               <FontAwesome name="user" size={20} color="black" />
-              {/* <Image style={styles.profilePic} source={avatar} /> */}
             </View>
           </TouchableOpacity>
         </View>
@@ -100,8 +96,8 @@ const Home = () => {
         <View style={styles.overviews}>
           <OverviewBox
             label="Sold"
-            count={productCount}
-            onPress={() => navigation.navigate("Products")}
+            count={sold}
+            onPress={() => {}}
             icon={
               <MaterialIcons name="inventory" size={20} color={cxlxrs.white} />
             }
@@ -110,14 +106,19 @@ const Home = () => {
           />
           <OverviewBox
             label="Invoices"
-            count={cashierCount}
-            onPress={() => navigation.navigate("Cashiers")}
-            icon={<FontAwesome5 name="users" size={20} color={cxlxrs.black} />}
+            count={invoices}
+            onPress={() => {}}
+            icon={
+              <Image
+                source={Images.invoiceIcon}
+                style={{ height: 20, width: 20 }}
+              />
+            }
             bgColor={cxlxrs.white}
             textColor={cxlxrs.black}
           />
         </View>
-        <ScrollView>
+        <ScrollView style={{ flex: 1, height: "100%" }}>
           <View style={styles.section}>
             <View
               style={{
@@ -128,38 +129,49 @@ const Home = () => {
               }}
             >
               <Text style={styles.sectionTitle}>Transaction</Text>
-              <Text style={styles.sectionLink}>View all</Text>
+
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Transactions")}
+              >
+                <Text style={styles.sectionLink}>View all</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableWithoutFeedback>
-              <View style={styles.transaction}>
-                {/* <View style={styles.transactionIcon}></View> */}
-                <View style={styles.transactionTexts}>
-                  <View style={styles.transactionTextLeft}>
-                    <Text style={styles.transactionName}>
-                      {`Product sold by ${latestSale.cashier || "Emily"}`}
-                    </Text>
-                    <View style={styles.transactionSubtext}>
-                      <Text style={styles.transactionTime}>
-                        {latestSale.created_at
-                          ? moment(latestSale.created_at).fromNow()
-                          : "10 min ago"}
-                      </Text>
-                      <Text style={styles.transactionProductCount}>
-                        {`${latestSale.productCount || 21} Products`}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.transactionTextRight}>
-                    <Text style={styles.transactionId}>
-                      {latestSale.id || "10ingo"}
-                    </Text>
-                    <Text
-                      style={styles.transactionTotalPrice}
-                    >{`₦${latestSale.price || "32,000"}`}</Text>
-                  </View>
-                </View>
+            {isLatestSaleLoading ? (
+              <View
+                style={{
+                  minHeight: 100,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ActivityIndicator
+                  size="large"
+                  color={cxlxrs.black}
+                  style={{ marginBottom: 10 }}
+                />
               </View>
-            </TouchableWithoutFeedback>
+            ) : (
+              // latestSales.map((item, index) => (
+              //   <TransactionPreview data={item} key={index} />
+              // ))
+              <SafeAreaView style={{ flex: 1 }}>
+                <View style={styles.listContainer}>
+                  <FlatList
+                    data={latestSales}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => (
+                      <TransactionPreview data={item} />
+                    )}
+                    contentContainerStyle={{
+                      flexGrow: 1,
+                    }}
+                    style={{ paddingBottom: 20 }}
+                    initialNumToRender={3}
+                    // onEndReachedThreshold={0.1}
+                  />
+                </View>
+              </SafeAreaView>
+            )}
           </View>
         </ScrollView>
       </View>

@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { cxlxrs } from "../../constants/Colors";
+import { FontFamily } from "../../constants/Fonts";
 
 export const styles = StyleSheet.create({
   container: {
@@ -22,5 +23,24 @@ export const styles = StyleSheet.create({
     color: cxlxrs.black,
     fontSize: 14,
     letterSpacing: 1,
+  },
+  buttonContainer: {
+    position: "absolute",
+    bottom: 70,
+    width: "100%",
+    backgroundColor: "transparent",
+    alignItems: "center",
+  },
+  dateSelector: {
+    backgroundColor: "#ffffff",
+    height: 40,
+    width: "60%",
+  },
+  dateSelectorText: {
+    fontFamily: FontFamily.FiraBold,
+    textTransform: "capitalize",
+    fontWeight: "400",
+    fontSize: 12,
+    color: cxlxrs.black,
   },
 });

@@ -18,6 +18,7 @@ import AppButton from "../AppButton/AppButton";
 import { Ionicons } from "@expo/vector-icons";
 import CustomInput from "../CustomInput/CustomInput";
 import CustomPopUp from "../CustomPopUp/CustomPopUp";
+import { FontFamily } from "../../constants/Fonts";
 const Scanner = ({ scannerVisible, setScannerVisible, basket, setBasket }) => {
   const user = useSelector(({ user }) => user.currentUser);
   const [hasPermission, setHasPermission] = useState(null);
@@ -168,7 +169,6 @@ function DetailsViewer(
       const filtered = basket.filter(
         (item, index) => item.barcode !== data.barcode
       );
-      data.price = data.price + exist.price;
       data.quantity = data.quantity + exist.quantity;
       data.total = data.total + exist.total;
       if (filtered.length && filtered !== undefined) {
@@ -238,7 +238,14 @@ function DetailsViewer(
               style={{ marginBottom: 10 }}
             />
           ) : noData ? (
-            <Text style={{}}>This product is not yet registered!</Text>
+            <Text
+              style={{
+                textAlign: "center",
+                fontFamily: FontFamily.FiraMedium,
+              }}
+            >
+              Product does'nt exist in inventory!
+            </Text>
           ) : (
             <>
               <View style={styles.cardInfo}>

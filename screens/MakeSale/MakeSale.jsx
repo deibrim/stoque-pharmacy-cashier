@@ -51,6 +51,7 @@ const MakeSale = () => {
     setTotal({ quantity: qty, price: totalPrice });
   };
   const onCheckout = () => {
+    const dateString = new Date().toISOString().substring(0, 10);
     setLoading(true);
     const timestamp = Date.now();
     const saleData = {
@@ -58,10 +59,13 @@ const MakeSale = () => {
       ...total,
       products: basket,
       created_at: timestamp,
+      dayCreated: dateString,
+      cashier_id: user.id,
+      cashier_name: user.firstName,
     };
     if (cash) {
       saleData["amountRecived"] = amount;
-      saleData["balnce"] = balance;
+      saleData["balance"] = balance;
     }
     CreateSale(saleData, user.id);
     setLoading(false);

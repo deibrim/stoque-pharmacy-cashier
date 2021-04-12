@@ -19,6 +19,7 @@ import CustomInput from "../CustomInput/CustomInput";
 import CustomPopUp from "../CustomPopUp/CustomPopUp";
 import AddProductInput from "../AddProductInput/AddProductInput";
 import ProductPreview from "../ProductPreview/ProductPreview";
+import { FontFamily } from "../../constants/Fonts";
 const SearchProduct = ({
   searchVisible,
   setSearchVisible,
@@ -81,7 +82,6 @@ const SearchProduct = ({
       const filtered = basket.filter(
         (item, index) => item.barcode !== data.barcode
       );
-      data.price = data.price + exist.price;
       data.quantity = data.quantity + exist.quantity;
       data.total = data.total + exist.total;
       if (filtered.length && filtered !== undefined) {
@@ -196,7 +196,15 @@ const SearchProduct = ({
         ) : noData ? (
           <SafeAreaView style={{ flex: 1 }}>
             <View style={styles.listContainer}>
-              <Text style={{}}>Product does'nt exist in inventory</Text>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontFamily: FontFamily.FiraMedium,
+                  paddingTop: 50,
+                }}
+              >
+                Product does'nt exist in inventory
+              </Text>
             </View>
           </SafeAreaView>
         ) : (
