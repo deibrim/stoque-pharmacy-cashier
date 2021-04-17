@@ -16,7 +16,7 @@ const Charge = ({
   const user = useSelector(({ user }) => user.currentUser);
 
   const [errorMessage, setErrorMessage] = useState("");
-  useEffect(() => {}, []);
+  useEffect(() => {}, [""]);
   const onCharge = () => {
     if (amount === "") {
       setErrorMessage("Enter an amount!");

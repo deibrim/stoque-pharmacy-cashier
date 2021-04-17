@@ -14,7 +14,7 @@ import { Wait } from "../../utils/helper";
 const Profile = () => {
   const user = useSelector(({ user }) => user.currentUser);
   const [dialogVisible, setDialogVisible] = useState(false);
-  useEffect(() => {}, []);
+  useEffect(() => {}, [""]);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const handleSignout = () => {

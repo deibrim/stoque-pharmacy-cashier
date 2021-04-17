@@ -35,7 +35,7 @@ const SearchProduct = ({
   const [productData, setProductData] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [selected, setSelected] = useState({});
-  useEffect(() => {}, []);
+  useEffect(() => {}, [""]);
   const getProductData = async () => {
     setIsLoading(true);
     setErrorMessage("");

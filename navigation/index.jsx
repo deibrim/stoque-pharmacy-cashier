@@ -17,16 +17,16 @@ function Navigation({ colorScheme }) {
   const currentUser = useSelector(({ user }) => user.currentUser);
   const dispatch = useDispatch();
   useEffect(() => {
-    auth.onAuthStateChanged(async (User) => {
-      if (User) {
-        const userRef = await createShopAdminProfile(User);
-        userRef.onSnapshot(async (snapShot) => {
-          const data = { id: snapShot.id, ...snapShot.data() };
-          dispatch(setCurrentUser(data));
-        });
-      }
-    });
-  }, []);
+    // auth.onAuthStateChanged(async (User) => {
+    //   if (User) {
+    //     const userRef = await createShopAdminProfile(User);
+    //     userRef.onSnapshot(async (snapShot) => {
+    //       const data = { id: snapShot.id, ...snapShot.data() };
+    //       dispatch(setCurrentUser(data));
+    //     });
+    //   }
+    // });
+  }, [""]);
 
   const renderer = () => {
     return currentUser ? <RootNavigator /> : <AuthNavigator />;

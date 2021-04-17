@@ -50,7 +50,7 @@ const Transactions = () => {
   useEffect(() => {
     const timeString = new Date(Date.now()).toISOString().substring(0, 10);
     fetchData(timeString);
-  }, [fetchData]);
+  }, [""]);
   const toggleDatePicker = () => {
     setDatePickerVisibility(!isDatePickerVisible);
   };

@@ -36,7 +36,7 @@ const Banner = ({ data }) => {
   useEffect(() => {
     setDataList(data);
     infiniteScroll(dataList);
-  });
+  }, [""]);
 
   if (data && data.length) {
     return (

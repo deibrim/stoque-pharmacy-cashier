@@ -1,4 +1,9 @@
-import { AntDesign, FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  FontAwesome,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -13,17 +18,21 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import AppButton from "../../components/AppButton/AppButton";
+import HelperDialog from "../../components/HelperDialog/HelperDialog";
 import OverviewBox from "../../components/OverviewBox/OverviewBox";
 import TransactionPreview from "../../components/TransactionPreview/TransactionPreview";
 import { cxlxrs } from "../../constants/Colors";
 import { Images } from "../../constants/images";
 import { firestore } from "../../firebase/config";
+import { setCurrentUser } from "../../redux/user/actions";
+import { Wait } from "../../utils/helper";
 import { styles } from "./styles";
 
 const Home = () => {
   const user = useSelector(({ user }) => user.currentUser);
   const [latestSale, setLatestSale] = useState({});
   const [latestSales, setLatestSales] = useState([]);
+  const [dialogVisible, setDialogVisible] = useState(false);
   const [isLatestSaleLoading, setIsLatestSaleLoading] = useState(true);
   const [invoices, setInvoices] = useState("0");
   const [sold, setSold] = useState("0");
@@ -58,11 +67,16 @@ const Home = () => {
   useEffect(() => {
     fetchData();
   }, [""]);
-
+  const handleSignout = () => {
+    setDialogVisible(false);
+    Wait(2000).then(() => {
+      dispatch(setCurrentUser(null));
+    });
+  };
   return (
     <>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => {}}>
+        <TouchableOpacity onPress={() => setDialogVisible(true)}>
           <View style={styles.noty}>
             <AntDesign name="logout" size={24} color={cxlxrs.danger} />
           </View>
@@ -75,7 +89,7 @@ const Home = () => {
               color: cxlxrs.black,
             }}
           >
-            {user.firstName || "Ibrahim"}
+            {user.name.split(" ")[0] || "Ibrahim"}
           </Text>
         </Text>
 
@@ -92,6 +106,24 @@ const Home = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <HelperDialog
+        visible={dialogVisible}
+        setDialogVisible={setDialogVisible}
+        title={"More"}
+      >
+        <TouchableOpacity
+          style={[styles.modalTextButton]}
+          onPress={handleSignout}
+        >
+          <Feather
+            name="log-out"
+            size={20}
+            color="red"
+            style={{ marginRight: 20 }}
+          />
+          <Text style={[styles.modalText, { color: "red" }]}>Logout</Text>
+        </TouchableOpacity>
+      </HelperDialog>
       <View style={styles.container}>
         <View style={styles.overviews}>
           <OverviewBox

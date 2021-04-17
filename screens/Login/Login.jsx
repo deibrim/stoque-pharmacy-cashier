@@ -8,30 +8,29 @@ import {
   TextInput,
   TouchableWithoutFeedback,
 } from "react-native";
+import { useDispatch } from "react-redux";
 import AppButton from "../../components/AppButton/AppButton";
 import CustomPopUp from "../../components/CustomPopUp/CustomPopUp";
 import { cxlxrs } from "../../constants/Colors";
-import { auth } from "../../firebase/config";
+import { auth, firestore } from "../../firebase/config";
+import { setCurrentUser } from "../../redux/user/actions";
 import { validateLoginUser } from "../../utils/validations";
 
 import { styles } from "./styles";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [passcode, setPasscode] = useState("");
+  const [phone, setPhone] = useState("");
+  const [shopId, setShopId] = useState();
+  const [passcode, setPasscode] = useState();
   const [toggleShowPassword, setToggleShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const handleSubmit = async () => {
-    if (email.trim() === "" || passcode.trim() === "") {
+    setErrorMessage("");
+    if (phone === "" || passcode === "" || shopId === "") {
       setErrorMessage("All fields are required");
-      return;
-    }
-    const result = validateLoginUser({ password: passcode, email });
-    if (result.errors.length) {
-      setErrorMessage(result.errors.toString().replace(/\,/gi, " "));
-      setLoading(false);
       return;
     }
     setLoading(true);
@@ -39,20 +38,23 @@ const Login = () => {
   };
   const onLogUserIn = async () => {
     try {
-      await auth.signInWithEmailAndPassword(email, passcode);
-      // setEmail("");
-      // setPasscode("");
+      const cashierRef = firestore
+        .collection(`cashiers`)
+        .doc(`${shopId}`)
+        .collection(`cashiers`);
+      cashierRef
+        .where("passcode", "==", passcode)
+        .where("phone", "==", `${phone}`)
+        .onSnapshot((snapShot) => {
+          if (snapShot.empty) {
+            setErrorMessage("Incorrect credentials");
+            return;
+          }
+          dispatch(setCurrentUser(snapShot.docs[0].data()));
+        });
       setLoading(false);
     } catch (error) {
-      error.code === "auth/wrong-password"
-        ? setErrorMessage(
-            "The password is invalid or the user does not have a password."
-          )
-        : error.code === "auth/user-not-found"
-        ? setErrorMessage(
-            "There is no user record corresponding to this identifier."
-          )
-        : setErrorMessage("Shit just got real");
+      setErrorMessage("An error occured");
       setLoading(false);
     }
   };
@@ -82,8 +84,8 @@ const Login = () => {
           ) : null}
         </View>
         <View style={styles.inputGroup}>
-          <FontAwesome
-            name="envelope-o"
+          <Feather
+            name="grid"
             style={styles.inputGroupIcon}
             size={19}
             color="#97989A"
@@ -92,15 +94,35 @@ const Login = () => {
           <TextInput
             style={styles.input}
             underlineColorAndroid="transparent"
-            keyboardType="email-address"
-            placeholder="Email"
+            keyboardType="numeric"
+            placeholder="Shop Code"
             placeholderTextColor="#97989A"
-            autoCapitalize="none"
             onChangeText={(e) => {
               setErrorMessage("");
-              setEmail(e);
+              setShopId(e * 1);
             }}
-            value={email}
+            value={shopId}
+          />
+        </View>
+        <View style={styles.inputGroup}>
+          <Feather
+            name="phone"
+            style={styles.inputGroupIcon}
+            size={19}
+            color="#97989A"
+          />
+
+          <TextInput
+            style={styles.input}
+            underlineColorAndroid="transparent"
+            keyboardType="numeric"
+            placeholder="Phone"
+            placeholderTextColor="#97989A"
+            onChangeText={(e) => {
+              setErrorMessage("");
+              setPhone(e);
+            }}
+            value={phone}
           />
         </View>
         <View style={styles.inputGroup}>
@@ -113,14 +135,13 @@ const Login = () => {
           <TextInput
             style={styles.input}
             underlineColorAndroid="transparent"
-            keyboardType="default"
+            keyboardType="numeric"
             secureTextEntry={!toggleShowPassword ? true : false}
             placeholder="Passcode"
             placeholderTextColor="#97989A"
-            autoCapitalize="none"
             onChangeText={(e) => {
               setErrorMessage("");
-              setPasscode(e);
+              setPasscode(e * 1);
             }}
             value={passcode}
           />

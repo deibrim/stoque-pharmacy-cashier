@@ -25,7 +25,7 @@ const Scan = ({ navigation }) => {
       const { status } = await Camera.requestPermissionsAsync();
       setHasPermission(status === "granted");
     })();
-  }, []);
+  }, [""]);
   const getProductData = async (barcode) => {
     const productsRef = firestore
       .collection("products")

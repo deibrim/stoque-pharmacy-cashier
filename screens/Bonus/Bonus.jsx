@@ -11,7 +11,7 @@ const Bonus = () => {
   const navigation = useNavigation();
   const [hasInvestment] = useState(false);
 
-  useEffect(() => {}, []);
+  useEffect(() => {}, [""]);
 
   return (
     <>

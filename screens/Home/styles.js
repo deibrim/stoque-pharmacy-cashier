@@ -24,6 +24,17 @@ export const styles = StyleSheet.create({
     color: cxlxrs.black,
     fontFamily: "FiraCode-Regular",
   },
+  modalTextButton: {
+    marginVertical: 3,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  modalText: {
+    color: "#111111",
+    fontSize: 14,
+    fontFamily: "FiraCode-Regular",
+  },
   imageContainer: {
     borderRadius: 25,
     width: 28,

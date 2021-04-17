@@ -1,22 +1,14 @@
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/core";
 import { useLinking } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import {
-  Dimensions,
-  Image,
-  Linking,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { colors, cxlxrs } from "../../constants/Colors";
+import { Image, Linking, Text, TouchableOpacity, View } from "react-native";
+import { cxlxrs } from "../../constants/Colors";
 import logo from "../../assets/images/logo.png";
 import { styles } from "./styles";
 
 const About = () => {
-  const [dialogVisible, setDialogVisible] = useState(false);
-  useEffect(() => {}, []);
+  useEffect(() => {}, [""]);
   const navigation = useNavigation();
   return (
     <>

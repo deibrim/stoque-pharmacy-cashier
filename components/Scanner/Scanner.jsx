@@ -33,7 +33,7 @@ const Scanner = ({ scannerVisible, setScannerVisible, basket, setBasket }) => {
 
   useEffect(() => {
     requestPermission();
-  }, []);
+  }, [""]);
   const getProductData = async (barcode) => {
     setErrorMessage("");
     const productsRef = firestore
