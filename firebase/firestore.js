@@ -43,15 +43,20 @@ export const CreateEmployee = async (data) => {
   }
 };
 
-export const CreateSale = async (data, ownerId) => {
+export const CreateSale = async (data, ownerId, cleanUp) => {
   const batch = firestore.batch();
-  const { id } = data;
+  const { id, cashier_id } = data;
   const salesRef = firestore.doc(`sales/${ownerId}/sales/${id}`);
   const productsRef = firestore
     .collection("products")
     .doc(ownerId)
     .collection("products");
+  const shoppingListRef = firestore
+    .collection("shoping_list")
+    .doc(ownerId)
+    .collection("shoping_list");
   const statsRef = firestore.collection("stats").doc(ownerId);
+  const cashierStatsRef = firestore.collection("cashier_stats").doc(cashier_id);
   batch.set(salesRef, data);
   statsRef.get().then((statsSnapshot) => {
     if (statsSnapshot.exists) {
@@ -68,7 +73,38 @@ export const CreateSale = async (data, ownerId) => {
       });
     }
   });
+  cashierStatsRef.get().then((cashierSnapshot) => {
+    if (cashierSnapshot.exists) {
+      batch.update(cashierStatsRef, {
+        revenue: cashierSnapshot.data().revenue + data.price,
+        sold: cashierSnapshot.data().sold + data.quantity,
+        invoice: cashierSnapshot.data().invoice + 1,
+      });
+    } else {
+      batch.set(cashierStatsRef, {
+        revenue: data.price,
+        sold: data.quantity,
+        invoice: 1,
+      });
+    }
+  });
+  // Final Step Update all product and shopping list
   data.products.forEach(async (item, index) => {
+    if (item.need_restock) {
+      shoppingListRef
+        .doc(item.id)
+        .get()
+        .then((snapshot) => {
+          if (snapshot.exists) {
+            batch.update(snapshot.ref, {
+              in_hand: item.other_info.in_hand,
+              status: item.other_info.status,
+            });
+          } else {
+            batch.set(snapshot.ref, item.other_info);
+          }
+        });
+    }
     const snapshot = await productsRef.doc(item.id).get();
     const productData = snapshot.data();
     batch.update(snapshot.ref, {
@@ -78,8 +114,10 @@ export const CreateSale = async (data, ownerId) => {
     if (index === arrLength) {
       try {
         await batch.commit();
+        cleanUp();
       } catch (error) {
         console.log("error creating sales", error.message);
+        cleanUp();
       }
     }
   });

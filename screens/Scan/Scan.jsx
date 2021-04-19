@@ -29,7 +29,7 @@ const Scan = ({ navigation }) => {
   const getProductData = async (barcode) => {
     const productsRef = firestore
       .collection("products")
-      .doc(user.id)
+      .doc(user.ownerId)
       .collection("products")
       .where("barcode", "==", barcode);
     const snapshot = await productsRef.get();

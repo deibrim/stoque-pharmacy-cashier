@@ -59,15 +59,19 @@ const MakeSale = () => {
       ...total,
       products: basket,
       created_at: timestamp,
-      dayCreated: dateString,
+      day_created: dateString,
       cashier_id: user.id,
-      cashier_name: user.firstName,
+      cashier_name: user.name,
     };
     if (cash) {
       saleData["amountRecived"] = amount;
       saleData["balance"] = balance;
     }
-    CreateSale(saleData, user.id);
+    CreateSale(saleData, user.ownerId, cleanUp);
+
+    // console.log(saleData);
+  };
+  function cleanUp() {
     setLoading(false);
     setBasket([]);
     setCharged(false);
@@ -75,8 +79,7 @@ const MakeSale = () => {
     setBalance("0");
     setTotal({ quantity: 0, price: 0 });
     setCash(false);
-    // console.log(saleData);
-  };
+  }
   useEffect(() => {
     onCalculateTotal();
   }, [basket]);

@@ -34,6 +34,7 @@ const Home = () => {
   const [latestSales, setLatestSales] = useState([]);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [isLatestSaleLoading, setIsLatestSaleLoading] = useState(true);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
   const [invoices, setInvoices] = useState("0");
   const [sold, setSold] = useState("0");
   const navigation = useNavigation();
@@ -41,11 +42,21 @@ const Home = () => {
   const timeString = new Date(Date.now()).toISOString().substring(0, 10);
   const latestSalesRef = firestore
     .collection("sales")
-    .doc(user.id)
+    .doc(user.ownerId)
     .collection("sales")
     .where("cashier_id", "==", `${user.id}`)
     .where("day_created", "==", `${timeString}`);
-  const fetchData = useCallback(async () => {
+  const statsRef = firestore.collection("cashier_stats").doc(user.id);
+  const fetchData = async () => {
+    statsRef.onSnapshot((snapShot) => {
+      if (!snapShot.exists) {
+        setIsStatsLoading(false);
+        return;
+      }
+      setInvoices(snapShot.data().invoice);
+      setSold(snapShot.data().sold);
+      setIsStatsLoading(false);
+    });
     latestSalesRef.onSnapshot((snapShot) => {
       const salesArr = [];
       if (!snapShot.empty) {
@@ -54,8 +65,7 @@ const Home = () => {
           salesArr.push(item.data());
           const arrLength = docs.length - 1;
           if (index === arrLength) {
-            console.log(docs.length);
-            setLatestSales(salesArr);
+            setLatestSales(salesArr.reverse());
             setIsLatestSaleLoading(false);
           }
         });
@@ -63,7 +73,7 @@ const Home = () => {
         setIsLatestSaleLoading(false);
       }
     });
-  }, [latestSale]);
+  };
   useEffect(() => {
     fetchData();
   }, [""]);
@@ -128,7 +138,17 @@ const Home = () => {
         <View style={styles.overviews}>
           <OverviewBox
             label="Sold"
-            count={sold}
+            count={
+              isStatsLoading ? (
+                <ActivityIndicator
+                  size="small"
+                  color={cxlxrs.white}
+                  style={{ marginBottom: 10 }}
+                />
+              ) : (
+                sold
+              )
+            }
             onPress={() => {}}
             icon={
               <MaterialIcons name="inventory" size={20} color={cxlxrs.white} />
@@ -138,7 +158,17 @@ const Home = () => {
           />
           <OverviewBox
             label="Invoices"
-            count={invoices}
+            count={
+              isStatsLoading ? (
+                <ActivityIndicator
+                  size="small"
+                  color={cxlxrs.black}
+                  style={{ marginBottom: 10 }}
+                />
+              ) : (
+                invoices
+              )
+            }
             onPress={() => {}}
             icon={
               <Image

@@ -22,7 +22,7 @@ import { FontFamily } from "../../constants/Fonts";
 const Scanner = ({ scannerVisible, setScannerVisible, basket, setBasket }) => {
   const user = useSelector(({ user }) => user.currentUser);
   const [hasPermission, setHasPermission] = useState(null);
-  const [quantity, setQuantity] = useState("");
+  const [quantity, setQuantity] = useState();
   const [scanning, setScanning] = useState(true);
   const [scanned, setScanned] = useState(false);
   const [barcode, setBarcode] = useState("");
@@ -38,7 +38,7 @@ const Scanner = ({ scannerVisible, setScannerVisible, basket, setBasket }) => {
     setErrorMessage("");
     const productsRef = firestore
       .collection("products")
-      .doc(user.id)
+      .doc(user.ownerId)
       .collection("products")
       .where("barcode", "==", barcode);
     const snapshot = await productsRef.get();
@@ -156,7 +156,19 @@ function DetailsViewer(
       id: productData.id,
       price: productData.price,
       total: productData.price * quantity,
+      need_restock: false,
     };
+    const in_hand = productData.quantity - quantity;
+    if (in_hand < productData.notification) {
+      data["need_restock"] = true;
+      data["other_info"] = {
+        barcode: productData.barcode,
+        product_name: productData.product_name,
+        id: productData.id,
+        in_hand,
+        status: in_hand > 0 ? "warn" : "danger",
+      };
+    }
     const exist = basket.find((item) => item.barcode === data.barcode);
     if (exist === undefined && basket.length === 0) {
       setBasket([data]);
