@@ -49,7 +49,6 @@ const Transactions = () => {
     await latestSalesRef
       .where("day_created", "==", `${timeString}`)
       .onSnapshot((snapShot) => {
-        console.log(snapShot.size);
         if (!snapShot.empty) {
           setHasData(true);
           let newProducts = [];

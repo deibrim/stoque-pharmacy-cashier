@@ -68,8 +68,6 @@ const MakeSale = () => {
       saleData["balance"] = balance;
     }
     CreateSale(saleData, user.ownerId, cleanUp);
-
-    // console.log(saleData);
   };
   function cleanUp() {
     setLoading(false);

@@ -2,7 +2,6 @@ import { firestore } from "./config";
 
 export const CreateCategory = async (data) => {
   const { category, id, ownerId } = data;
-  console.log(data);
   const categoryRef = firestore.doc(
     `categories/${ownerId}/categories/${category.toLowerCase()}`
   );
