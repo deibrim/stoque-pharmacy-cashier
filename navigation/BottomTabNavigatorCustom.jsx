@@ -12,6 +12,7 @@ import { isIphoneX } from "react-native-iphone-x-helper";
 import Home from "../screens/Home/Home";
 import Scan from "../screens/Scan/Scan";
 import Transactions from "../screens/Transactions/Transactions";
+import TransactionView from "../screens/TransactionView/TransactionView";
 import MakeSale from "../screens/MakeSale/MakeSale";
 
 import { Icons } from "../constants/icons";
@@ -26,8 +27,7 @@ const TabBarCustomButton = ({
   children,
   onPress,
 }) => {
-  var isSelected = accessibilityState.selected;
-
+  const isSelected = accessibilityState.selected;
   if (isSelected) {
     return (
       <View style={{ flex: 1, alignItems: "center" }}>
@@ -38,14 +38,14 @@ const TabBarCustomButton = ({
             top: 0,
           }}
         >
-          <View style={{ flex: 1, backgroundColor: cxlxrs.white }}></View>
+          <View style={{ flex: 1, backgroundColor: "#ffffff" }}></View>
           <Svg width={75} height={61} viewBox="0 0 75 61">
             <Path
               d="M75.2 0v61H0V0c4.1 0 7.4 3.1 7.9 7.1C10 21.7 22.5 33 37.7 33c15.2 0 27.7-11.3 29.7-25.9.5-4 3.9-7.1 7.9-7.1h-.1z"
-              fill={cxlxrs.white}
+              fill={"#ffffff"}
             />
           </Svg>
-          <View style={{ flex: 1, backgroundColor: cxlxrs.white }}></View>
+          <View style={{ flex: 1, backgroundColor: "#ffffff" }}></View>
         </View>
 
         <TouchableOpacity
@@ -90,31 +90,33 @@ const CustomTabBar = (props) => {
     return <BottomTabBar {...props.props} />;
   }
 };
-
-const BottomTabNavigator = () => {
-  function getTabBarVisible(route) {
-    const routeName = getFocusedRouteNameFromRoute(route);
-    switch (routeName) {
-      case "EditProfile":
-        return false;
-        break;
-      case "Profile":
-        return false;
-        break;
-      case "MakeSale":
-        return false;
-        break;
-      case "ProductView":
-        return false;
-        break;
-      case "About":
-        return false;
-        break;
-      default:
-        return true;
-        break;
-    }
+function getTabBarVisible(route) {
+  const routeName = getFocusedRouteNameFromRoute(route);
+  switch (routeName) {
+    case "EditProfile":
+      return false;
+      break;
+    case "Profile":
+      return false;
+      break;
+    case "MakeSale":
+      return false;
+      break;
+    case "ProductView":
+      return false;
+      break;
+    case "TransactionView":
+      return false;
+      break;
+    case "About":
+      return false;
+      break;
+    default:
+      return true;
+      break;
   }
+}
+const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -155,6 +157,7 @@ const BottomTabNavigator = () => {
         name="Scan"
         component={ScanScreenNavigator}
         options={({ route }) => ({
+          tabBarVisible: getTabBarVisible(route),
           tabBarIcon: ({ focused }) => (
             <Image
               source={Icons.scan}
@@ -166,13 +169,15 @@ const BottomTabNavigator = () => {
               }}
             />
           ),
-          tabBarButton: (props) => <TabBarCustomButton {...props} />,
+          tabBarButton: (props) =>
+            getTabBarVisible(route) && <TabBarCustomButton {...props} />,
         })}
       />
       <Tab.Screen
         name="Transaction"
         component={TransactionScreenNavigator}
         options={({ route }) => ({
+          tabBarVisible: getTabBarVisible(route),
           tabBarIcon: ({ focused }) => (
             <AntDesign
               name="retweet"
@@ -180,7 +185,8 @@ const BottomTabNavigator = () => {
               color={focused ? cxlxrs.white : cxlxrs.textColor}
             />
           ),
-          tabBarButton: (props) => <TabBarCustomButton {...props} />,
+          tabBarButton: (props) =>
+            getTabBarVisible(route) && <TabBarCustomButton {...props} />,
         })}
       />
     </Tab.Navigator>
@@ -235,6 +241,13 @@ function TransactionScreenNavigator() {
       <ScreenStack.Screen
         name="Transactions"
         component={Transactions}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ScreenStack.Screen
+        name="TransactionView"
+        component={TransactionView}
         options={{
           headerShown: false,
         }}

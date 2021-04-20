@@ -1,64 +1,82 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/core";
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Image, Text, TouchableOpacity, ScrollView } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  View,
+  RefreshControl,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useSelector } from "react-redux";
 import AppButton from "../../components/AppButton/AppButton";
+import TransactionPreview from "../../components/TransactionPreview/TransactionPreview";
 import { cxlxrs } from "../../constants/Colors";
 import { firestore } from "../../firebase/config";
 
 import { styles } from "./styles";
 
 const Transactions = () => {
+  let onEndReachedCalledDuringMomentum = false;
+  const timeString = new Date(Date.now()).toISOString().substring(0, 10);
   const user = useSelector(({ user }) => user.currentUser);
   const navigation = useNavigation();
   const [latestSales, setLatestSales] = useState([]);
-  const [isLatestSaleLoading, setIsLatestSaleLoading] = useState(true);
+  const [isTranctionsLoading, setIsTransactions] = useState(true);
   const [hasData, setHasData] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [reportViewVisible, setReportViewVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMoreLoading, setIsMoreLoading] = useState(false);
+  const [lastDoc, setLastDoc] = useState(null);
+  const [transactions, setTransactions] = useState([]);
 
   const latestSalesRef = firestore
     .collection("sales")
-    .doc(user.id)
+    .doc(user.ownerId)
     .collection("sales")
     .where("cashier_id", "==", `${user.id}`);
 
-  const fetchData = useCallback(
-    async (timeString) => {
-      latestSalesRef
-        .where("day_created", "==", `${timeString}`)
-        .onSnapshot((snapShot) => {
-          const salesArr = [];
-          if (!snapShot.empty) {
-            const docs = snapShot.docs;
-            docs.forEach((item, index) => {
-              salesArr.push(item.data());
-              const arrLength = docs.length - 1;
-              if (index === arrLength) {
-                setLatestSales(salesArr);
-                setIsLatestSaleLoading(false);
-              }
-            });
-            setIsLatestSaleLoading(false);
+  const onRefresh = () => {
+    setTimeout(() => {
+      fetchTransactions();
+    }, 1000);
+  };
+  const fetchTransactions = async (timeString) => {
+    setIsLoading(true);
+    await latestSalesRef
+      .where("day_created", "==", `${timeString}`)
+      .onSnapshot((snapShot) => {
+        console.log(snapShot.size);
+        if (!snapShot.empty) {
+          setHasData(true);
+          let newProducts = [];
+
+          setLastDoc(snapShot.docs[snapShot.docs.length - 1]);
+
+          for (let i = 0; i < snapShot.docs.length; i++) {
+            newProducts.push(snapShot.docs[i].data());
           }
-        });
-    },
-    [latestSales]
-  );
+
+          setTransactions(newProducts);
+        } else {
+          setLastDoc(null);
+        }
+      });
+    setIsLoading(false);
+  };
   useEffect(() => {
-    const timeString = new Date(Date.now()).toISOString().substring(0, 10);
-    fetchData(timeString);
+    fetchTransactions(timeString);
   }, [""]);
   const toggleDatePicker = () => {
     setDatePickerVisibility(!isDatePickerVisible);
   };
   const handleConfirmDate = (date) => {
     const timeString = new Date(date).toISOString().substring(0, 10);
-    console.log(timeString);
     setDatePickerVisibility(!isDatePickerVisible);
-    fetchData(timeString);
+    navigation.navigate("TransactionView", { timeString });
   };
 
   return (
@@ -80,10 +98,66 @@ const Transactions = () => {
         <Text style={styles.routeTitle}>Transactions</Text>
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.contentContainer}
-        style={styles.container}
-      ></ScrollView>
+      {isLoading ? (
+        <ActivityIndicator
+          size="large"
+          color={cxlxrs.black}
+          style={{ marginBottom: 10 }}
+        />
+      ) : hasData ? (
+        <SafeAreaView style={{ flex: 1, alignItems: "center" }}>
+          <View style={styles.listContainer}>
+            <FlatList
+              data={transactions}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item, index }) => (
+                <>
+                  <TransactionPreview key={index} data={item} />
+                  {index === 2 ? <View style={{ height: 20 }}></View> : null}
+                </>
+              )}
+              ListFooterComponent={
+                <RenderFooter isMoreLoading={isMoreLoading} />
+              }
+              refreshControl={
+                <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+              }
+              contentContainerStyle={{
+                flexGrow: 1,
+              }}
+              style={{ paddingBottom: 20 }}
+              initialNumToRender={10}
+              onEndReachedThreshold={0.1}
+              onMomentumScrollBegin={() => {
+                onEndReachedCalledDuringMomentum = false;
+              }}
+            />
+          </View>
+        </SafeAreaView>
+      ) : (
+        <View style={styles.noData}>
+          <Text style={[styles.noDataText, styles.noProductText]}>
+            You haven't perform any transaction today.
+          </Text>
+          <AppButton
+            onPress={() => navigation.navigate("MakeSale")}
+            title="Make Sale"
+            customStyle={{
+              backgroundColor: cxlxrs.black,
+              borderRadius: 30,
+              height: 35,
+              width: "40%",
+            }}
+            textStyle={{
+              fontFamily: "FiraCode-Regular",
+              textTransform: "capitalize",
+              fontWeight: "400",
+              fontSize: 12,
+              color: cxlxrs.white,
+            }}
+          />
+        </View>
+      )}
 
       <View style={{ ...styles.buttonContainer }}>
         <AppButton
@@ -104,5 +178,15 @@ const Transactions = () => {
     </>
   );
 };
+function RenderFooter({ isMoreLoading }) {
+  if (!isMoreLoading) return true;
 
+  return (
+    <ActivityIndicator
+      size="large"
+      color={cxlxrs.black}
+      style={{ marginBottom: 10 }}
+    />
+  );
+}
 export default Transactions;

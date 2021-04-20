@@ -97,6 +97,21 @@ export const styles = StyleSheet.create({
     elevation: 3,
     marginTop: 10,
   },
+  noData: {
+    alignItems: "center",
+    minHeight: 100,
+    marginVertical: 20,
+    marginHorizontal: 10,
+  },
+  noDataText: {
+    textAlign: "center",
+    fontSize: 13,
+    color: "#97989A",
+    lineHeight: 30,
+    marginVertical: 20,
+    fontFamily: "FiraCode-Regular",
+    letterSpacing: 0.5,
+  },
   transactionIcon: { width: 20 },
   transactionTexts: {
     width: Dimensions.get("screen").width - 40,

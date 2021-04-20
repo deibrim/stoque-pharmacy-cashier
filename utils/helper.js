@@ -22,6 +22,12 @@ export const firstDayOfTheWeek = Date.parse(
 export const lastDayOfTheWeek = Date.parse(
   new Date(date.setDate(last)).toLocaleString()
 );
+export const StartOfToday = () => {
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  const timeString = +d;
+  return timeString;
+};
 export const TransferBarcode = async (barcode, ownerId) => {
   const barcodeRef = firestore
     .collection("barcode")

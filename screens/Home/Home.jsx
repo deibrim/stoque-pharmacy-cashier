@@ -35,6 +35,7 @@ const Home = () => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [isLatestSaleLoading, setIsLatestSaleLoading] = useState(true);
   const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const [hasData, setHasData] = useState(false);
   const [invoices, setInvoices] = useState("0");
   const [sold, setSold] = useState("0");
   const navigation = useNavigation();
@@ -60,6 +61,7 @@ const Home = () => {
     latestSalesRef.onSnapshot((snapShot) => {
       const salesArr = [];
       if (!snapShot.empty) {
+        setHasData(true);
         const docs = snapShot.docs;
         docs.forEach((item, index) => {
           salesArr.push(item.data());
@@ -71,7 +73,9 @@ const Home = () => {
         });
         setLatestSale(snapShot.docs[0].data());
         setIsLatestSaleLoading(false);
+        return;
       }
+      setIsLatestSaleLoading(false);
     });
   };
   useEffect(() => {
@@ -180,7 +184,7 @@ const Home = () => {
             textColor={cxlxrs.black}
           />
         </View>
-        <ScrollView style={{ flex: 1, height: "100%" }}>
+        <View style={{ flex: 1, height: "100%" }}>
           <View style={styles.section}>
             <View
               style={{
@@ -212,30 +216,38 @@ const Home = () => {
                   style={{ marginBottom: 10 }}
                 />
               </View>
-            ) : (
-              // latestSales.map((item, index) => (
-              //   <TransactionPreview data={item} key={index} />
-              // ))
-              <SafeAreaView style={{ flex: 1 }}>
+            ) : hasData ? (
+              <SafeAreaView style={{ flexGrow: 1 }}>
                 <View style={styles.listContainer}>
                   <FlatList
                     data={latestSales}
                     keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                      <TransactionPreview data={item} />
+                    renderItem={({ item, index }) => (
+                      <>
+                        <TransactionPreview key={index} data={item} />
+                        {index === latestSales.length - 1 ? (
+                          <View style={{ height: 20 }}></View>
+                        ) : null}
+                      </>
                     )}
                     contentContainerStyle={{
                       flexGrow: 1,
                     }}
                     style={{ paddingBottom: 20 }}
                     initialNumToRender={3}
-                    // onEndReachedThreshold={0.1}
+                    onEndReachedThreshold={0.1}
                   />
                 </View>
               </SafeAreaView>
+            ) : (
+              <View style={styles.noData}>
+                <Text style={[styles.noDataText, styles.noProductText]}>
+                  You haven't perform any transaction today.
+                </Text>
+              </View>
             )}
           </View>
-        </ScrollView>
+        </View>
       </View>
       <View
         style={{
