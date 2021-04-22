@@ -9,23 +9,30 @@ import { useDispatch, useSelector } from "react-redux";
 import BottomTabNavigator from "./BottomTabNavigatorCustom";
 import Login from "../screens/Login/Login";
 import ForgotPassword from "../screens/ForgotPassword/ForgotPassword";
-import { auth } from "../firebase/config";
-import { createShopAdminProfile } from "../firebase/auth";
+import { firestore } from "../firebase/config";
 import { setCurrentUser } from "../redux/user/actions";
 
 function Navigation({ colorScheme }) {
   const currentUser = useSelector(({ user }) => user.currentUser);
   const dispatch = useDispatch();
+
+  const onLogUserIn = async (shopId, userId) => {
+    try {
+      await firestore
+        .collection(`cashiers`)
+        .doc(`${shopId}`)
+        .collection(`cashiers`)
+        .doc(userId)
+        .onSnapshot((snapShot) => {
+          if (snapShot.empty) {
+            return;
+          }
+          dispatch(setCurrentUser(snapShot.data()));
+        });
+    } catch (error) {}
+  };
   useEffect(() => {
-    // auth.onAuthStateChanged(async (User) => {
-    //   if (User) {
-    //     const userRef = await createShopAdminProfile(User);
-    //     userRef.onSnapshot(async (snapShot) => {
-    //       const data = { id: snapShot.id, ...snapShot.data() };
-    //       dispatch(setCurrentUser(data));
-    //     });
-    //   }
-    // });
+    currentUser && onLogUserIn(currentUser.shopId, currentUser.id);
   }, [""]);
 
   const renderer = () => {

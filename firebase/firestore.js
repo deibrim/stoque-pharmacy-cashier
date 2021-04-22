@@ -50,10 +50,11 @@ export const CreateSale = async (data, ownerId, cleanUp) => {
     .collection("products")
     .doc(ownerId)
     .collection("products");
+  const allProductsRef = firestore.collection("all_products");
   const shoppingListRef = firestore
-    .collection("shoping_list")
+    .collection("shopping_list")
     .doc(ownerId)
-    .collection("shoping_list");
+    .collection("shopping_list");
   const statsRef = firestore.collection("stats").doc(ownerId);
   const cashierStatsRef = firestore.collection("cashier_stats").doc(cashier_id);
   batch.set(salesRef, data);
@@ -105,9 +106,14 @@ export const CreateSale = async (data, ownerId, cleanUp) => {
         });
     }
     const snapshot = await productsRef.doc(item.id).get();
+    const allProductSnapshot = await allProductsRef.doc(item.id).get();
     const productData = snapshot.data();
+    const allProductData = allProductSnapshot.data();
     batch.update(snapshot.ref, {
       quantity: productData.quantity - item.quantity,
+    });
+    batch.update(allProductSnapshot.ref, {
+      quantity: allProductData.quantity - item.quantity,
     });
     const arrLength = data.products.length - 1;
     if (index === arrLength) {

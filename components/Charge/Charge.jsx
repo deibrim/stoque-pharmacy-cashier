@@ -11,6 +11,7 @@ const Charge = ({
   setAmount,
   setCharged,
   setDialogVisible,
+  setPayMethod,
   bill,
 }) => {
   const user = useSelector(({ user }) => user.currentUser);
@@ -24,6 +25,7 @@ const Charge = ({
     }
     const balance = amount - bill;
     setBalance(balance * 1);
+    setPayMethod("cash");
     setCharged(true);
     setDialogVisible(false);
   };

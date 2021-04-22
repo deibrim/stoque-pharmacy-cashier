@@ -40,6 +40,7 @@ const MakeSale = () => {
   const [basket, setBasket] = useState([]);
   const [total, setTotal] = useState({ quantity: 0, price: 0 });
   const [type, setType] = useState("");
+  const [payMethod, setPayMethod] = useState("");
   const [cash, setCash] = useState(false);
   const onCalculateTotal = () => {
     let qty = 0;
@@ -62,6 +63,7 @@ const MakeSale = () => {
       day_created: dateString,
       cashier_id: user.id,
       cashier_name: user.name,
+      paymentMethod: payMethod,
     };
     if (cash) {
       saleData["amountRecived"] = amount;
@@ -303,6 +305,7 @@ const MakeSale = () => {
             balance={balance}
             setBalance={setBalance}
             setDialogVisible={setDialogVisible}
+            setPayMethod={setPayMethod}
           />
         )}
         {type === "payMethod" && (
@@ -325,6 +328,7 @@ const MakeSale = () => {
             <TouchableOpacity
               style={[styles.modalTextButton]}
               onPress={() => {
+                setPayMethod("pos");
                 setCharged(true);
                 setDialogVisible(false);
               }}
@@ -340,6 +344,7 @@ const MakeSale = () => {
             <TouchableOpacity
               style={[styles.modalTextButton]}
               onPress={() => {
+                setPayMethod("transfer");
                 setCharged(true);
                 setDialogVisible(false);
               }}
