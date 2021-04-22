@@ -43,3 +43,21 @@ export const Wait = (timeout) => {
     setTimeout(resolve, timeout);
   });
 };
+
+export const SendNotification = (pushNotificationData) => {
+  const { body, token, title } = pushNotificationData;
+  fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      channelId: pushNotificationData.channelId || "defalt",
+      to: token,
+      sound: "default",
+      title,
+      body,
+    }),
+  });
+};
