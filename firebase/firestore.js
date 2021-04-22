@@ -41,7 +41,27 @@ export const CreateEmployee = async (data) => {
     console.log("error creating shop", error.message);
   }
 };
-
+export const UpdateNotification = (
+  ownerId,
+  notificationData,
+  pushNotificationData
+) => {
+  const notificationRef = firestore
+    .collection("notifications")
+    .doc(ownerId)
+    .collection("notifications")
+    .doc();
+  try {
+    notificationRef.set({
+      ...notificationData,
+      created_at: Date.now(),
+      viewed: false,
+    });
+    SendNotification(pushNotificationData);
+  } catch (error) {
+    console.log(error);
+  }
+};
 export const CreateSale = async (data, ownerId, cleanUp) => {
   const batch = firestore.batch();
   const { id, cashier_id } = data;
@@ -92,7 +112,7 @@ export const CreateSale = async (data, ownerId, cleanUp) => {
   // Final Step Update all product and shopping list
   data.products.forEach(async (item, index) => {
     if (item.need_restock) {
-      const userSnapshot = await userRef.get();
+      // const userSnapshot = await userRef.get();
       shoppingListRef
         .doc(item.id)
         .get()
@@ -105,28 +125,32 @@ export const CreateSale = async (data, ownerId, cleanUp) => {
               in_hand: item.other_info.in_hand,
               status: item.other_info.status,
             });
-            UpdateNotification(
-              ownerId,
-              { title: "Product Alert!!!", message },
-              {
-                token: userSnapshot.data().notificationToken,
-                channelId: "productAlert",
-                title: "Product Alert!!!",
-                body: message,
-              }
-            );
+            userRef.get().then((snapshot) => {
+              UpdateNotification(
+                ownerId,
+                { title: "Product Alert!!!", message },
+                {
+                  token: snapshot.data().notificationToken,
+                  channelId: "productAlert",
+                  title: "Product Alert!!!",
+                  body: message,
+                }
+              );
+            });
           } else {
             batch.set(snapshot.ref, item.other_info);
-            UpdateNotification(
-              ownerId,
-              { title: "Product Alert!!!", message },
-              {
-                token: userSnapshot.data().notificationToken,
-                channelId: "productAlert",
-                title: "Product Alert!!!",
-                body: message,
-              }
-            );
+            userRef.get().then((snapshot) => {
+              UpdateNotification(
+                ownerId,
+                { title: "Product Alert!!!", message },
+                {
+                  token: snapshot.data().notificationToken,
+                  channelId: "productAlert",
+                  title: "Product Alert!!!",
+                  body: message,
+                }
+              );
+            });
           }
         });
     }
@@ -151,26 +175,4 @@ export const CreateSale = async (data, ownerId, cleanUp) => {
       }
     }
   });
-};
-
-export const UpdateNotification = (
-  ownerId,
-  notificationData,
-  pushNotificationData
-) => {
-  const notificationRef = firestore
-    .collection("notifications")
-    .doc(ownerId)
-    .collection("notifications")
-    .doc();
-  try {
-    notificationRef.set({
-      ...notificationData,
-      created_at: Date.now(),
-      viewed: false,
-    });
-    SendNotification(pushNotificationData);
-  } catch (error) {
-    console.log(error);
-  }
 };
