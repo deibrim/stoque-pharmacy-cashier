@@ -107,7 +107,7 @@ const Home = () => {
           </Text>
         </Text>
 
-        <View
+        {/* <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
@@ -118,7 +118,7 @@ const Home = () => {
               <FontAwesome name="user" size={20} color="black" />
             </View>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
       <HelperDialog
         visible={dialogVisible}

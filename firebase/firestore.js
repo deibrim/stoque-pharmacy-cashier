@@ -1,46 +1,6 @@
 import { firestore } from "./config";
 import { SendNotification } from "../utils/helper";
-export const CreateCategory = async (data) => {
-  const { category, id, ownerId } = data;
-  const categoryRef = firestore.doc(
-    `categories/${ownerId}/categories/${category.toLowerCase()}`
-  );
-  const categoryData = {
-    id,
-    label: category,
-  };
-  try {
-    await categoryRef.set(categoryData);
-  } catch (error) {
-    console.log("error creating category", error.message);
-  }
-};
-export const CreateProduct = async (data, ownerId) => {
-  const { id } = data;
-  const categoryRef = firestore.doc(`products/${ownerId}/products/${id}`);
-  try {
-    await categoryRef.set(data);
-  } catch (error) {
-    console.log("error creating category", error.message);
-  }
-};
-export const CreateEmployee = async (data) => {
-  const { name, storeName, address, ownerId, branchCode, id } = data;
-  const employeeRef = firestore.doc(`employees/${ownerId}/cashiers/${id}`);
-  const employeeData = {
-    id,
-    storeName,
-    storeId: ownerId,
-    branchCode,
-    name,
-    address,
-  };
-  try {
-    await employeeRef.set(employeeData);
-  } catch (error) {
-    console.log("error creating shop", error.message);
-  }
-};
+
 export const UpdateNotification = (
   ownerId,
   notificationData,
@@ -62,7 +22,8 @@ export const UpdateNotification = (
     console.log(error);
   }
 };
-export const CreateSale = async (data, ownerId, cleanUp) => {
+export const CreateSale = async (data, ownerId, cleanUp, navigation) => {
+  let sent = false;
   const batch = firestore.batch();
   const { id, cashier_id } = data;
   const salesRef = firestore.doc(`sales/${ownerId}/sales/${id}`);
@@ -116,41 +77,48 @@ export const CreateSale = async (data, ownerId, cleanUp) => {
       shoppingListRef
         .doc(item.id)
         .get()
-        .then((snapshot) => {
-          const message = `${other_info.product_name} ${
-            item.other_info.in_hand > 0 ? "is running low" : "has sold out"
+        .then(async (snapshot) => {
+          const message = `${item.other_info.product_name} ${
+            item.other_info.in_hand > 0
+              ? `is running low, ${item.other_info.in_hand} left`
+              : "has sold out"
           }`;
           if (snapshot.exists) {
             batch.update(snapshot.ref, {
               in_hand: item.other_info.in_hand,
               status: item.other_info.status,
             });
-            userRef.get().then((snapshot) => {
+            const userSnap = await userRef.get();
+            if (userSnap.exists && !sent) {
+              console.log("got userRef");
+              sent = true;
               UpdateNotification(
                 ownerId,
                 { title: "Product Alert!!!", message },
                 {
-                  token: snapshot.data().notificationToken,
+                  token: userSnap.data().notificationToken,
                   channelId: "productAlert",
                   title: "Product Alert!!!",
                   body: message,
                 }
               );
-            });
+            }
           } else {
             batch.set(snapshot.ref, item.other_info);
-            userRef.get().then((snapshot) => {
+            const userSnap = await userRef.get();
+            if (userSnap.exists && !sent) {
+              sent = true;
               UpdateNotification(
                 ownerId,
                 { title: "Product Alert!!!", message },
                 {
-                  token: snapshot.data().notificationToken,
+                  token: userSnap.data().notificationToken,
                   channelId: "productAlert",
                   title: "Product Alert!!!",
                   body: message,
                 }
               );
-            });
+            }
           }
         });
     }
@@ -168,6 +136,7 @@ export const CreateSale = async (data, ownerId, cleanUp) => {
     if (index === arrLength) {
       try {
         await batch.commit();
+        navigation.navigate("InvoiceView", { data });
         cleanUp();
       } catch (error) {
         console.log("error creating sales", error.message);

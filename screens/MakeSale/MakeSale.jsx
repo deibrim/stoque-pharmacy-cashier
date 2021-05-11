@@ -69,7 +69,7 @@ const MakeSale = () => {
       saleData["amountRecived"] = amount;
       saleData["balance"] = balance;
     }
-    CreateSale(saleData, user.ownerId, cleanUp);
+    CreateSale(saleData, user.ownerId, cleanUp, navigation);
   };
   function cleanUp() {
     setLoading(false);

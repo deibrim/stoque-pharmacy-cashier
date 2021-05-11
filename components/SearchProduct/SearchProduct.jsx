@@ -70,14 +70,15 @@ const SearchProduct = ({
       id: selected.id,
       price: selected.price,
       total: selected.price * quantity,
+      need_restock: false,
     };
-    const in_hand = productData.quantity - quantity;
-    if (in_hand < productData.notification) {
+    const in_hand = selected.quantity - quantity;
+    if (in_hand < selected.notification) {
       data["need_restock"] = true;
       data["other_info"] = {
-        barcode: productData.barcode,
-        product_name: productData.product_name,
-        id: productData.id,
+        barcode: selected.barcode,
+        product_name: selected.product_name,
+        id: selected.id,
         in_hand,
         status: in_hand > 0 ? "warn" : "danger",
       };

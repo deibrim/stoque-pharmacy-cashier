@@ -42,7 +42,7 @@ const InvoiceView = () => {
       <View style={styles.header}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.routeTitle}>Invoices</Text>
+            <Text style={styles.routeTitle}>Invoice</Text>
           </TouchableOpacity>
         </View>
         <Text style={styles.routeTitle}>#{data.id}</Text>
@@ -191,13 +191,31 @@ const InvoiceView = () => {
               >{`₦${balance}`}</Text>
             </View>
           </View>
+          <View style={[styles.tableFooter, styles.tableSubFooter]}>
+            <View style={[styles.tableRow]}>
+              <Text
+                style={[
+                  styles.tableText,
+                  styles.tableTextLong,
+                  styles.tableFooterText,
+                  styles.tableFooterTextName,
+                ]}
+              >
+                Payment Method
+              </Text>
+              <Text style={[styles.tableText, styles.tableFooterText]}></Text>
+              <Text style={[styles.tableText, styles.tableFooterText]}>
+                {data.paymentMethod}
+              </Text>
+            </View>
+          </View>
         </View>
         <View style={styles.bottomButtonsContainer}>
           <View style={styles.bottomButtons}></View>
         </View>
       </ScrollView>
       <View style={{ ...styles.buttonContainer }}>
-        <TouchableOpacity onPress={() => navigation.navigate("AddCategory")}>
+        <TouchableOpacity onPress={() => {}}>
           <View
             style={[
               styles.button,
